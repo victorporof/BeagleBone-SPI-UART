@@ -10,8 +10,8 @@ var fs = require("fs");
  * Example use:
  *
  * var ports = require("./BBIO.js");
- * ports.SPI.enable();
- * ports.UART.enable();
+ * ports.SPI.enable(0);
+ * ports.UART.enable(5);
  */
 
 var BBIO = {
