@@ -16,11 +16,11 @@ BBIO.UART.enable(5);
 
 * __**`BBIO.SPI.enable(index)`**__
 
-Enables the SPI ports on the BeagleBone Black. The optional `index` parameter specifies the SPI port to enable. Can be either 0 or 1 (there are only two SPI ports on the BeagleBone Black). If unspecified, both SPI ports will be enabled. *Caveat: the HDMI port is inaccessible while the SPI1 is enabled. Be careful!*
+Enables the SPI ports on the BeagleBone Black. The `index` parameter specifies the SPI port to enable. Can be either 0 or 1 (there are only two SPI ports on the BeagleBone Black). *Caveat: the HDMI port is inaccessible while the SPI1 is enabled. Be careful!*
 
 * __**`BBIO.UART.enable(index)`**__
 
-Enables the UART (serial tty*) ports on the BeagleBone Black. The optional `index` parameter specifies the UART port to enable. Can be either 1, 2, 4 or 5 (port 0 is enabled by default and has a dedicated header, while port 3 is sort of irrelevant as it can't receive data). If unspecified, all supported UART ports will be enabled.
+Enables the UART (serial tty*) ports on the BeagleBone Black. The `index` parameter specifies the UART port to enable. Can be either 1, 2, 4 or 5 (port 0 is enabled by default and has a dedicated header, while port 3 is sort of irrelevant as it can't receive data).
 
 ## Activate SPI or UART on boot
 
