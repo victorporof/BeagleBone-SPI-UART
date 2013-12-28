@@ -6,7 +6,7 @@ Enables SPI and UART (serial tty*) hardware ports on the BeagleBone Black.
 ## How to use
 On the BeagleBone Black, the SPI ports are both disabled by default, and only the UART0 serial port is accessible via dedicated headers. To easily bypass these limitations, you can use this library in your project, or configure the ports beforehand via the command line interface.
 
-```
+```bash
 $ node BBIO.js --enable-spi 0
 $ node BBIO.js --enable-uart 5
 ```
@@ -31,7 +31,7 @@ Enables the UART (serial tty*) ports on the BeagleBone Black. The `index` parame
 
 As of kernel 3.8.13-r23a.17 the SPI or UART overlays can be automatically activated during system startup, if you already enabled them at least once. There is a special `uEnv.txt` on the boot partition that specifies the user environment setup, with the initial content of `optargs=quiet drm.debug=7`. To access it:
 
-```
+```bash
 $ if [ ! -d /mnt/boot ]; then mkdir /mnt/boot; fi
 $ mount /dev/mmcblk0p1 /mnt/boot
 $ nano /mnt/boot/uEnv.txt
