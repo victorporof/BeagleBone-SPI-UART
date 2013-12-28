@@ -53,18 +53,17 @@ BBIO.SPI = {
   /**
    * Enables the SPI ports on the BeagleBone Black.
    *
-   * @param number index [optional]
+   * @param number index
    *        The SPI port to enable. Can be either 0 or 1 (there are only two
-   *        SPI ports on the BeagleBone Black). If unspecified, both SPI ports
-   *        will be enabled.
+   *        SPI ports on the BeagleBone Black).
    */
   enable: function(index) {
     var capemgr = BBIO.getCapeManager();
 
-    if (index == 0 || index === undefined) {
+    if (index == 0) {
       BBIO.enable(capemgr, "BB-SPI0-01");
     }
-    if (index == 1 || index === undefined) {
+    else if (index == 1) {
       BBIO.enable(capemgr, "BB-SPI1-01");
     }
   },
@@ -74,25 +73,24 @@ BBIO.UART = {
   /**
    * Enables the UART (serial tty*) ports on the BeagleBone Black.
    *
-   * @param number index [optional]
+   * @param number index
    *        The UART port to enable. Can be either 1, 2, 4 or 5 (port 0 is
    *        enabled by default and has a dedicated header, while port 3 is
-   *        sort of irrelevant as it can't receive data). If unspecified, all
-   *        supported UART ports will be enabled.
+   *        sort of irrelevant as it can't receive data).
    */
   enable: function(index) {
     var capemgr = BBIO.getCapeManager();
 
-    if (index == 1 || index === undefined) {
+    if (index == 1) {
       BBIO.enable(capemgr, "BB-UART1");
     }
-    if (index == 2 || index === undefined) {
+    else if (index == 2) {
       BBIO.enable(capemgr, "BB-UART2");
     }
-    if (index == 4 || index === undefined) {
+    else if (index == 4) {
       BBIO.enable(capemgr, "BB-UART4");
     }
-    if (index == 5 || index === undefined) {
+    else if (index == 5) {
       BBIO.enable(capemgr, "BB-UART5");
     }
   }
