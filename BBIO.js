@@ -18,16 +18,19 @@ var BBIO = {
   /**
    * Gets the path to the bone_capemgr device.
    *
-   * @return string
-   *         For example, "/sys/devices/bone_capemgr.8/".
+   * @param function callback
+   *        Invoked with a path argument, e.g. "/sys/devices/bone_capemgr.8/".
    */
-  getCapeManager: function() {
+  getCapeManager: function(callback) {
     var path = "/sys/devices";
-    var devices = fs.readdirSync(path);
-
-    return devices.filter(function(s) {
-      return s.indexOf("bone_capemgr") == 0;
-    }).pop();
+    var devices = fs.readdir(path, function(err, devices) {
+      if (err) {
+        throw "Couldn't get the cape manager device";
+      }
+      var file = "bone_capemgr";
+      var matches = devices.filter(function(s) { return s.indexOf(file) == 0; });
+      callback(matches.pop());
+    });
   },
 
   /**
@@ -43,15 +46,15 @@ var BBIO = {
   enable: function(capemgr, dts, callback) {
     cp.exec("dtc -O dtb -o " + dts + "-00A0.dtbo -b 0 -@ " + dts + "-00A0.dts", function(err) {
       if (err) {
-        throw err;
+        throw "Couldn't compile the device tree source";
       }
       cp.exec("cp " + dts + "-00A0.dtbo /lib/firmware/", function(err) {
         if (err) {
-          throw err;
+        throw "Couldn't copy the device tree into the firmware";
         }
         fs.appendFile("/sys/devices/" + capemgr + "/slots", dts, function(err) {
           if (err) {
-            throw err;
+            throw "Couldn't enable the " + dts + " device tree overlay";
           }
           callback();
         });
@@ -71,14 +74,13 @@ BBIO.SPI = {
    *        Invoked when the SPI port is enabled.
    */
   enable: function(index, callback) {
-    var capemgr = BBIO.getCapeManager();
-
-    if (index == 0) {
-      BBIO.enable(capemgr, "BB-SPI0-01", callback);
-    }
-    else if (index == 1) {
-      BBIO.enable(capemgr, "BB-SPI1-01", callback);
-    }
+    BBIO.getCapeManager(function(capemgr) {
+      if (index == 0) {
+        BBIO.enable(capemgr, "BB-SPI0-01", callback);
+      } else if (index == 1) {
+        BBIO.enable(capemgr, "BB-SPI1-01", callback);
+      }
+    });
   },
 };
 
@@ -94,20 +96,17 @@ BBIO.UART = {
    *        Invoked when the UART port is enabled.
    */
   enable: function(index, callback) {
-    var capemgr = BBIO.getCapeManager();
-
-    if (index == 1) {
-      BBIO.enable(capemgr, "BB-UART1", callback);
-    }
-    else if (index == 2) {
-      BBIO.enable(capemgr, "BB-UART2", callback);
-    }
-    else if (index == 4) {
-      BBIO.enable(capemgr, "BB-UART4", callback);
-    }
-    else if (index == 5) {
-      BBIO.enable(capemgr, "BB-UART5", callback);
-    }
+    BBIO.getCapeManager(function(capemgr) {
+      if (index == 1) {
+        BBIO.enable(capemgr, "BB-UART1", callback);
+      } else if (index == 2) {
+        BBIO.enable(capemgr, "BB-UART2", callback);
+      } else if (index == 4) {
+        BBIO.enable(capemgr, "BB-UART4", callback);
+      } else if (index == 5) {
+        BBIO.enable(capemgr, "BB-UART5", callback);
+      }
+    });
   }
 };
 
