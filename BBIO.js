@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 "use strict";
 
+var async = require("async");
 var cp = require("child_process");
 var fs = require("fs");
 
@@ -44,22 +45,34 @@ var BBIO = {
    *        Invoked when the operation finishes without errors.
    */
   enable: function(capemgr, dts, callback) {
-    cp.exec("dtc -O dtb -o " + dts + "-00A0.dtbo -b 0 -@ " + dts + "-00A0.dts", function(err) {
-      if (err) {
-        throw "Couldn't compile the device tree source";
-      }
-      cp.exec("cp " + dts + "-00A0.dtbo /lib/firmware/", function(err) {
-        if (err) {
-          throw "Couldn't copy the device tree into the firmware";
-        }
-        fs.appendFile(capemgr + "/slots", dts, function(err) {
+    async.series([
+      function(callback) {
+        cp.exec("dtc -O dtb -o " + dts + "-00A0.dtbo -b 0 -@ " + dts + "-00A0.dts", function(err) {
           if (err) {
+            throw "Couldn't compile the device tree source";
+          }
+          callback();
+        });
+      },
+      function(callback) {
+        cp.exec("cp " + dts + "-00A0.dtbo /lib/firmware/", function(err) {
+          if (err) {
+            throw "Couldn't copy the device tree into the firmware";
+          }
+          callback();
+        });
+      },
+      function(callback) {
+        fs.appendFile(capemgr + "/slots", dts, function(err) {
+          if (err.code == "EEXIST") {
+            console.warn("The " + dts + " device tree is already enabled!");
+          } else {
             throw "Couldn't enable the requested device tree overlay";
           }
           callback();
         });
-      });
-    });
+      }
+    ], callback);
   }
 };
 
@@ -116,41 +129,53 @@ BBIO.UART = {
 function printDiagnosticInfo() {
   console.log("Checking enabled SPI and UART devices...\n");
 
-  cp.exec("ls /dev/spi*", function(err, stdout, strerr) {
-    if (stdout.trim().length) {
-      console.log("Available SPI devices:\n" + stdout);
-    } else {
-      console.log("No SPI devices.\n");
-    }
-
-    cp.exec("ls /lib/firmware/BB-SPI*", function(err, stdout, strerr) {
-      if (stdout.trim().length) {
-        console.log("Installed SPI firmware:\n" + stdout);
-      }
-
+  async.waterfall([
+    function(callback) {
+      cp.exec("ls /dev/spi*", function(err, stdout, strerr) {
+        if (stdout.trim().length) {
+          console.log("Available SPI devices:\n" + stdout);
+        } else {
+          console.log("No SPI devices.\n");
+        }
+        callback();
+      });
+    },
+    function(callback) {
+      cp.exec("ls /lib/firmware/BB-SPI*", function(err, stdout, strerr) {
+        if (stdout.trim().length) {
+          console.log("Installed SPI firmware:\n" + stdout);
+        }
+        callback();
+      });
+    },
+    function(callback) {
       cp.exec("ls /dev/ttyO*", function(err, stdout, strerr) {
         if (stdout.trim().length) {
           console.log("Available UART devices:\n" + stdout);
         } else {
           console.log("No UART devices.\n");
         }
-
-        cp.exec("ls /lib/firmware/BB-UART*", function(err, stdout, strerr) {
-          if (stdout.trim().length) {
-            console.log("Installed UART firmware:\n" + stdout);
-          }
-
-          BBIO.getCapeManager(function(capemgr) {
-            console.log("Cape manager slots:\n" + capemgr);
-
-            cp.exec("cat " + capemgr + "/slots", function(err, stdout, strerr) {
-              console.log(stdout);
-            });
-          });
-        });
+        callback();
       });
-    });
-  });
+    }, function(callback) {
+      cp.exec("ls /lib/firmware/BB-UART*", function(err, stdout, strerr) {
+        if (stdout.trim().length) {
+          console.log("Installed UART firmware:\n" + stdout);
+        }
+        callback();
+      });
+    }, function(callback) {
+      BBIO.getCapeManager(function(capemgr) {
+        callback(null, capemgr);
+      });
+    }, function(capemgr, callback) {
+      cp.exec("cat " + capemgr + "/slots", function(err, stdout, strerr) {
+        console.log("Cape manager slots:\n" + capemgr);
+        console.log(stdout);
+        callback();
+      });
+    }
+  ]);
 }
 
 /**
@@ -160,33 +185,26 @@ var main = function() {
   var enableSPI = process.argv.indexOf("--enable-spi");
   var enableUART = process.argv.indexOf("--enable-uart");
 
-  if (enableSPI != -1) {
-    var port = process.argv[enableSPI + 1];
-    console.log("Enabling SPI port " + port + "...");
-
-    BBIO.SPI.enable(port, function() {
-      enableSPI = -1;
-      maybePrintDiagnosticInfo();
-    });
-  }
-
-  if (enableUART != -1) {
-    var port = process.argv[enableUART + 1];
-    console.log("Enabling UART port " + port + "...");
-
-    BBIO.UART.enable(port, function() {
-      enableUART = -1;
-      maybePrintDiagnosticInfo();
-    });
-  }
-
-  function maybePrintDiagnosticInfo() {
-    if (enableSPI == -1 && enableUART == -1) {
-      printDiagnosticInfo();
+  async.series([
+    function(callback) {
+      if (enableSPI != -1) {
+        var port = process.argv[enableSPI + 1];
+        console.log("Enabling SPI on port " + port + "...");
+        BBIO.SPI.enable(port, callback);
+      } else {
+        callback()
+      }
+    },
+    function(callback) {
+      if (enableUART != -1) {
+        var port = process.argv[enableUART + 1];
+        console.log("Enabling UART on port " + port + "...");
+        BBIO.UART.enable(port, callback);
+      } else {
+        callback();
+      }
     }
-  }
-
-  maybePrintDiagnosticInfo();
+  ], printDiagnosticInfo);
 }
 
 if (require.main == module) {
