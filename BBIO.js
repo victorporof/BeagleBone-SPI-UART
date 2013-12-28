@@ -22,13 +22,14 @@ var BBIO = {
    *        Invoked with a path argument, e.g. "/sys/devices/bone_capemgr.8/".
    */
   getCapeManager: function(callback) {
-    var devices = fs.readdir("/sys/devices", function(err, devices) {
+    var folder = "/sys/devices";
+    fs.readdir(folder, function(err, devices) {
       if (err) {
         throw "Couldn't get the cape manager device";
       }
       var file = "bone_capemgr";
       var matches = devices.filter(function(s) { return s.indexOf(file) == 0; });
-      callback(matches.pop());
+      callback(folder + "/" + matches.pop());
     });
   },
 
@@ -51,9 +52,9 @@ var BBIO = {
         if (err) {
           throw "Couldn't copy the device tree into the firmware";
         }
-        fs.appendFile("/sys/devices/" + capemgr + "/slots", dts, function(err) {
+        fs.appendFile(capemgr + "/slots", dts, function(err) {
           if (err) {
-            throw "Couldn't enable the " + dts + " device tree overlay";
+            throw "Couldn't enable the requested device tree overlay";
           }
           callback();
         });
@@ -138,6 +139,14 @@ function printDiagnosticInfo() {
           if (stdout.trim().length) {
             console.log("Installed UART firmware:\n" + stdout);
           }
+
+          BBIO.getCapeManager(function(capemgr) {
+            console.log("Cape manager slots:\n" + capemgr);
+
+            cp.exec("cat " + capemgr + "/slots", function(err, stdout, strerr) {
+              console.log(stdout);
+            });
+          });
         });
       });
     });
