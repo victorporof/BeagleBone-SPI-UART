@@ -22,8 +22,7 @@ var BBIO = {
    *        Invoked with a path argument, e.g. "/sys/devices/bone_capemgr.8/".
    */
   getCapeManager: function(callback) {
-    var path = "/sys/devices";
-    var devices = fs.readdir(path, function(err, devices) {
+    var devices = fs.readdir("/sys/devices", function(err, devices) {
       if (err) {
         throw "Couldn't get the cape manager device";
       }
@@ -50,7 +49,7 @@ var BBIO = {
       }
       cp.exec("cp " + dts + "-00A0.dtbo /lib/firmware/", function(err) {
         if (err) {
-        throw "Couldn't copy the device tree into the firmware";
+          throw "Couldn't copy the device tree into the firmware";
         }
         fs.appendFile("/sys/devices/" + capemgr + "/slots", dts, function(err) {
           if (err) {
