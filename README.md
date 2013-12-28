@@ -8,8 +8,8 @@ On the BeagleBone Black, the SPI ports are both disabled by default, and only th
 
 ```javascript
 var BBIO = require("./BBIO.js");
-BBIO.SPI.enable();
-BBIO.UART.enable();
+BBIO.SPI.enable(0);
+BBIO.UART.enable(5);
 ```
 
 ## API
