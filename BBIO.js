@@ -109,4 +109,79 @@ BBIO.UART = {
   }
 };
 
+/**
+ * Prints information about the current SPI and UART devices to the stdout.
+ */
+function printDiagnosticInfo() {
+  console.log("Checking enabled SPI and UART devices...\n");
+
+  cp.exec("ls /dev/spi*", function(err, stdout, strerr) {
+    if (stdout.trim().length) {
+      console.log("Available SPI devices:\n" + stdout);
+    } else {
+      console.log("No SPI devices.\n");
+    }
+
+    cp.exec("ls /lib/firmware/BB-SPI*", function(err, stdout, strerr) {
+      if (stdout.trim().length) {
+        console.log("Installed SPI firmware:\n" + stdout);
+      }
+
+      cp.exec("ls /dev/ttyO*", function(err, stdout, strerr) {
+        if (stdout.trim().length) {
+          console.log("Available UART devices:\n" + stdout);
+        } else {
+          console.log("No UART devices.\n");
+        }
+
+        cp.exec("ls /lib/firmware/BB-UART*", function(err, stdout, strerr) {
+          if (stdout.trim().length) {
+            console.log("Installed UART firmware:\n" + stdout);
+          }
+        });
+      });
+    });
+  });
+}
+
+/**
+ * Function called when this module is ran directly, not imported.
+ */
+var main = function() {
+  var enableSPI = process.argv.indexOf("--enable-spi");
+  var enableUART = process.argv.indexOf("--enable-uart");
+
+  if (enableSPI != -1) {
+    var port = process.argv[enableSPI + 1];
+    console.log("Enabling SPI port " + port + "...");
+
+    BBIO.SPI.enable(port, function() {
+      enableSPI = -1;
+      maybePrintDiagnosticInfo();
+    });
+  }
+
+  if (enableUART != -1) {
+    var port = process.argv[enableUART + 1];
+    console.log("Enabling UART port " + port + "...");
+
+    BBIO.UART.enable(port, function() {
+      enableUART = -1;
+      maybePrintDiagnosticInfo();
+    });
+  }
+
+  function maybePrintDiagnosticInfo() {
+    if (enableSPI == -1 && enableUART == -1) {
+      printDiagnosticInfo();
+    }
+  }
+
+  maybePrintDiagnosticInfo();
+}
+
+if (require.main == module) {
+  main();
+}
+
 module.exports = BBIO;
