@@ -4,8 +4,13 @@ BeagleBone-SPI-UART
 Enables SPI and UART (serial tty*) hardware ports on the BeagleBone Black.
 
 ## How to use
-On the BeagleBone Black, the SPI ports are both disabled by default, and only the UART0 serial port is accessible via dedicated headers. To easily bypass these limitations, you can use this library.
+On the BeagleBone Black, the SPI ports are both disabled by default, and only the UART0 serial port is accessible via dedicated headers. To easily bypass these limitations, you can use this library in your project, or configure the ports beforehand via the command line interface.
 
+```
+$ node BBIO.js --enable-spi 0
+$ node BBIO.js --enable-uart 5
+```
+or
 ```javascript
 var BBIO = require("./BBIO.js");
 BBIO.SPI.enable(0, function(){});
