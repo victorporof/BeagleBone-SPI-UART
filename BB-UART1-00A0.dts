@@ -1,0 +1,41 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/dts-v1/;
+/plugin/;
+
+/* UART1 */
+/* P9_24 output and P9_26 input */
+
+/ {
+    compatible = "ti,beaglebone", "ti,beaglebone-black";
+
+    part-number = "uart1";
+    version = "00A0";
+
+    exclusive-use =
+        "P9.24", /* uart1_txd */
+        "P9.26", /* uart1_rxd */
+        "uart1";
+
+    fragment@0 {
+        target = <&am33xx_pinmux>;
+        __overlay__ {
+            bb_uart1_pins: pinmux_bb_uart1_pins {
+                pinctrl-single,pins = <
+                    0x184 0x20 /* P9_24 = uart1_txd */
+                    0x180 0x20 /* P9_26 = uart1_rxd */
+                >;
+            };
+        };
+    };
+
+    fragment@1 {
+        target = <&uart2>;
+        __overlay__ {
+            status = "okay";
+            pinctrl-names = "default";
+            pinctrl-0 = <&bb_uart1_pins>;
+        };
+    };
+};

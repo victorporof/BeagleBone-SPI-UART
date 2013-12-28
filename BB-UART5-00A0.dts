@@ -1,0 +1,41 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/dts-v1/;
+/plugin/;
+
+/* UART5 */
+/* P8_37 output and P8_38 input */
+
+/ {
+    compatible = "ti,beaglebone", "ti,beaglebone-black";
+
+    part-number = "uart5";
+    version = "00A0";
+
+    exclusive-use =
+        "P8.37", /* uart5_txd */
+        "P8.38", /* uart5_rxd */
+        "uart5";
+
+    fragment@0 {
+        target = <&am33xx_pinmux>;
+        __overlay__ {
+            bb_uart5_pins: pinmux_bb_uart5_pins {
+                pinctrl-single,pins = <
+                    0x0C4 0x24 /* P8_38 = lcd_data9.uart5_rxd | MODE4 */
+                    0x0C0 0x04 /* P8_37 = lcd_data8.uart5_txd | MODE4 */
+                >;
+            };
+        };
+    };
+
+    fragment@1 {
+        target = <&uart6>;
+        __overlay__ {
+            status = "okay";
+            pinctrl-names = "default";
+            pinctrl-0 = <&bb_uart5_pins>;
+        };
+    };
+};
