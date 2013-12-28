@@ -126,6 +126,7 @@ BBIO.UART = {
 /**
  * Prints information about the current SPI and UART devices to the stdout.
  */
+
 function printDiagnosticInfo() {
   console.log("Checking enabled SPI and UART devices...\n");
 
@@ -157,18 +158,21 @@ function printDiagnosticInfo() {
         }
         callback();
       });
-    }, function(callback) {
+    },
+    function(callback) {
       cp.exec("ls /lib/firmware/BB-UART*", function(err, stdout, strerr) {
         if (stdout.trim().length) {
           console.log("Installed UART firmware:\n" + stdout);
         }
         callback();
       });
-    }, function(callback) {
+    },
+    function(callback) {
       BBIO.getCapeManager(function(capemgr) {
         callback(null, capemgr);
       });
-    }, function(capemgr, callback) {
+    },
+    function(capemgr, callback) {
       cp.exec("cat " + capemgr + "/slots", function(err, stdout, strerr) {
         console.log("Cape manager slots:\n" + capemgr);
         console.log(stdout);
