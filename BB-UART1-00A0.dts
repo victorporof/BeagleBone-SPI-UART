@@ -23,8 +23,8 @@
         __overlay__ {
             bb_uart1_pins: pinmux_bb_uart1_pins {
                 pinctrl-single,pins = <
-                    0x184 0x20 /* P9_24 = uart1_txd */
-                    0x180 0x20 /* P9_26 = uart1_rxd */
+                    0x184 0x20 /* P9_24 = i2c1_scl.uart1_txd | MODE0 */
+                    0x180 0x20 /* P9_26 = 12c1_sda.uart1_rxd | MODE0 */
                 >;
             };
         };
