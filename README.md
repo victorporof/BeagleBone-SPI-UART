@@ -8,19 +8,19 @@ On the BeagleBone Black, the SPI ports are both disabled by default, and only th
 
 ```javascript
 var BBIO = require("./BBIO.js");
-BBIO.SPI.enable(0);
-BBIO.UART.enable(5);
+BBIO.SPI.enable(0, function(){});
+BBIO.UART.enable(5, function(){});
 ```
 
 ## API
 
-* __**`BBIO.SPI.enable(index)`**__
+* __**`BBIO.SPI.enable(index, callback)`**__
 
-Enables the SPI ports on the BeagleBone Black. The `index` parameter specifies the SPI port to enable. Can be either 0 or 1 (there are only two SPI ports on the BeagleBone Black). *Caveat: the HDMI port is inaccessible while the SPI1 is enabled. Be careful!*
+Enables the SPI ports on the BeagleBone Black. The `index` parameter specifies the SPI port to enable. Can be either 0 or 1 (there are only two SPI ports on the BeagleBone Black). *Caveat: the HDMI port is inaccessible while the SPI1 is enabled. Be careful!* The `callback` function is invoked after the SPI port is enabled.
 
-* __**`BBIO.UART.enable(index)`**__
+* __**`BBIO.UART.enable(index, callback)`**__
 
-Enables the UART (serial tty*) ports on the BeagleBone Black. The `index` parameter specifies the UART port to enable. Can be either 1, 2, 4 or 5 (port 0 is enabled by default and has a dedicated header, while port 3 is sort of irrelevant as it can't receive data).
+Enables the UART (serial tty*) ports on the BeagleBone Black. The `index` parameter specifies the UART port to enable. Can be either 1, 2, 4 or 5 (port 0 is enabled by default and has a dedicated header, while port 3 is sort of irrelevant as it can't receive data). The `callback` function is invoked after the UART port is enabled.
 
 ## Activate SPI or UART on boot
 

@@ -10,8 +10,8 @@ var fs = require("fs");
  * Example use:
  *
  * var ports = require("./BBIO.js");
- * ports.SPI.enable(0);
- * ports.UART.enable(5);
+ * ports.SPI.enable(0, function(){});
+ * ports.UART.enable(5, function(){});
  */
 
 var BBIO = {
@@ -37,15 +37,26 @@ var BBIO = {
    *        The path to the bone_capemgr device.
    * @param string dts
    *        A device tree identifier, like "BB-SPI0-01" or "BB-UART1".
+   * @param function callback
+   *        Invoked when the operation finishes without errors.
    */
-  enable: function(capemgr, dts) {
-    cp.exec("dtc -O dtb -o " + dts + "-00A0.dtbo -b 0 -@ " + dts + "-00A0.dts");
-    cp.exec("cp " + dts + "-00A0.dtbo /lib/firmware/");
-    try {
-      fs.appendFileSync("/sys/devices/" + capemgr + "/slots", dts);
-    } catch (e) {
-      console.error(e);
-    }
+  enable: function(capemgr, dts, callback) {
+    cp.exec("dtc -O dtb -o " + dts + "-00A0.dtbo -b 0 -@ " + dts + "-00A0.dts", function(err) {
+      if (err) {
+        throw err;
+      }
+      cp.exec("cp " + dts + "-00A0.dtbo /lib/firmware/", function(err) {
+        if (err) {
+          throw err;
+        }
+        fs.appendFile("/sys/devices/" + capemgr + "/slots", dts, function(err) {
+          if (err) {
+            throw err;
+          }
+          callback();
+        });
+      });
+    });
   }
 };
 
@@ -56,15 +67,17 @@ BBIO.SPI = {
    * @param number index
    *        The SPI port to enable. Can be either 0 or 1 (there are only two
    *        SPI ports on the BeagleBone Black).
+   * @param function callback
+   *        Invoked when the SPI port is enabled.
    */
-  enable: function(index) {
+  enable: function(index, callback) {
     var capemgr = BBIO.getCapeManager();
 
     if (index == 0) {
-      BBIO.enable(capemgr, "BB-SPI0-01");
+      BBIO.enable(capemgr, "BB-SPI0-01", callback);
     }
     else if (index == 1) {
-      BBIO.enable(capemgr, "BB-SPI1-01");
+      BBIO.enable(capemgr, "BB-SPI1-01", callback);
     }
   },
 };
@@ -77,21 +90,23 @@ BBIO.UART = {
    *        The UART port to enable. Can be either 1, 2, 4 or 5 (port 0 is
    *        enabled by default and has a dedicated header, while port 3 is
    *        sort of irrelevant as it can't receive data).
+   * @param function callback
+   *        Invoked when the UART port is enabled.
    */
-  enable: function(index) {
+  enable: function(index, callback) {
     var capemgr = BBIO.getCapeManager();
 
     if (index == 1) {
-      BBIO.enable(capemgr, "BB-UART1");
+      BBIO.enable(capemgr, "BB-UART1", callback);
     }
     else if (index == 2) {
-      BBIO.enable(capemgr, "BB-UART2");
+      BBIO.enable(capemgr, "BB-UART2", callback);
     }
     else if (index == 4) {
-      BBIO.enable(capemgr, "BB-UART4");
+      BBIO.enable(capemgr, "BB-UART4", callback);
     }
     else if (index == 5) {
-      BBIO.enable(capemgr, "BB-UART5");
+      BBIO.enable(capemgr, "BB-UART5", callback);
     }
   }
 };
