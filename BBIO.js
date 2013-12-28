@@ -64,10 +64,12 @@ var BBIO = {
       },
       function(callback) {
         fs.appendFile(capemgr + "/slots", dts, function(err) {
-          if (err.code == "EEXIST") {
-            console.warn("The " + dts + " device tree is already enabled!");
-          } else {
-            throw "Couldn't enable the requested device tree overlay";
+          if (err) {
+            if (err.code == "EEXIST") {
+              console.warn("The " + dts + " device tree is already enabled!");
+            } else {
+              throw "Couldn't enable the requested device tree overlay";
+            }
           }
           callback();
         });
@@ -126,7 +128,6 @@ BBIO.UART = {
 /**
  * Prints information about the current SPI and UART devices to the stdout.
  */
-
 function printDiagnosticInfo() {
   console.log("Checking enabled SPI and UART devices...\n");
 
