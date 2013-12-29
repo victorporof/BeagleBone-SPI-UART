@@ -12,7 +12,7 @@ $ node BBIO.js --enable-uart 5
 ```
 or
 ```javascript
-var BBIO = require("./BBIO.js");
+var BBIO = require("bbio");
 BBIO.SPI.enable(0, function(){});
 BBIO.UART.enable(5, function(){});
 ```
