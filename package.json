@@ -1,0 +1,32 @@
+{
+  "name": "bbio",
+  "version": "1.0.0",
+  "description": "Enables SPI and UART (serial tty*) hardware ports on the BeagleBone Black",
+  "main": "BBIO.js",
+  "dependencies": {
+    "async": "~0.2.9"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/victorporof/BeagleBone-SPI-UART.git"
+  },
+  "keywords": [
+    "beaglebone",
+    "black",
+    "gpio",
+    "spi",
+    "uart",
+    "tty",
+    "serial"
+  ],
+  "author": "Victor Porof <victor.porof@gmail.com> (https://github.com/victorporof)",
+  "license": "MPL 2.0",
+  "bugs": {
+    "url": "https://github.com/victorporof/BeagleBone-SPI-UART/issues"
+  },
+  "homepage": "https://github.com/victorporof/BeagleBone-SPI-UART"
+}
